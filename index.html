@@ -10,6 +10,10 @@
       border-color: #6366f1;
       box-shadow: 0 0 0 2px #c7d2fe;
     }
+    textarea {
+      resize: vertical;
+      min-height: 48px;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900 p-6">
@@ -29,7 +33,7 @@
         </div>
     </section>
 
-    ---
+    <div class="my-8 h-px bg-gray-200"></div>
 
     <section class="mt-8 space-y-3">
       <h2 id="tomorrow-day-name" class="text-xl font-semibold mb-2"></h2>
@@ -101,7 +105,6 @@
     function getDateInTZ(tz, offsetDays = 0) {
         const now = new Date();
         now.setDate(now.getDate() + offsetDays);
-
         const fmt = new Intl.DateTimeFormat("en-CA", {
             timeZone: tz,
             year: "numeric",
@@ -194,6 +197,13 @@
         return { status: "unknown" };
     }
 
+    function getFormattedDate(date) {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
     function renderSchedule(date, containerId, dayNameContainerId) {
         const isoWeek = getIsoWeek(date);
         const weekNum = (isoWeek % 4 === 0) ? 4 : isoWeek % 4;
@@ -205,7 +215,7 @@
 
         const items = schedule[weekNum]?.[dayKey] || [];
         const scheduleList = document.getElementById(containerId);
-        scheduleList.innerHTML = ''; // Очищаємо список перед оновленням
+        scheduleList.innerHTML = '';
 
         if (items.length === 0) {
             scheduleList.innerHTML = `<div class="p-6 rounded-2xl border border-dashed text-center text-gray-600">На цей день розклад порожній.</div>`;
@@ -213,6 +223,9 @@
             items.forEach((item, index) => {
                 const { start, end } = LESSON_TIMES[index] || {};
                 const activeLesson = containerId === "schedule-list" && start && end && isNowBetween(start, end);
+                
+                const noteKey = `note-${getFormattedDate(date)}-${index}`;
+                const savedNote = localStorage.getItem(noteKey) || '';
 
                 const itemHtml = `
                     <div class="flex items-center justify-between p-3 rounded-2xl border shadow-sm ${activeLesson ? "active" : "border-gray-200"}">
@@ -222,6 +235,15 @@
                         </div>
                         ${start && end ? `<div class="tabular-nums font-medium">${start}–${end}</div>` : ""}
                     </div>
+                    ${(containerId === 'tomorrow-schedule-list' || (containerId === 'schedule-list' && savedNote)) ? `
+                    <div class="p-3">
+                        <textarea class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all"
+                            placeholder="Напишіть нотатку для цього предмета..."
+                            id="${noteKey}"
+                            ${containerId === 'tomorrow-schedule-list' ? `oninput="saveNote('${noteKey}')"` : 'readonly'}
+                        >${savedNote}</textarea>
+                    </div>
+                    ` : ''}
                 `;
                 scheduleList.insertAdjacentHTML("beforeend", itemHtml);
 
@@ -238,6 +260,11 @@
                 }
             });
         }
+    }
+
+    function saveNote(noteKey) {
+        const textarea = document.getElementById(noteKey);
+        localStorage.setItem(noteKey, textarea.value);
     }
 
     function renderStatus(dayKey, weekType) {
@@ -264,19 +291,30 @@
         statusElement.innerHTML = statusHtml;
     }
 
+    function clearOldNotes() {
+        const today = getDateInTZ(TIME_ZONE, 0);
+        const twoDaysAgo = getDateInTZ(TIME_ZONE, -2);
+        const twoDaysAgoDateKey = getFormattedDate(twoDaysAgo);
+
+        for (let i = 0; i < LESSON_TIMES.length; i++) {
+            const noteKey = `note-${twoDaysAgoDateKey}-${i}`;
+            localStorage.removeItem(noteKey);
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
+        clearOldNotes();
+        
         const todayTZ = getDateInTZ(TIME_ZONE);
         const isoWeek = getIsoWeek(todayTZ);
         const weekNum = (isoWeek % 4 === 0) ? 4 : isoWeek % 4;
         const jsDay = todayTZ.getDay();
         const dayKey = DAYS[jsDay].key;
         
-        // Відображення розкладу на сьогодні
         document.getElementById("date-info").textContent = `${new Intl.DateTimeFormat("uk-UA", { timeZone: TIME_ZONE, dateStyle: "full" }).format(new Date())} — ${weekNum}-й тиждень`;
         renderStatus(dayKey, weekNum);
         renderSchedule(todayTZ, "schedule-list", "current-day-name");
 
-        // Відображення розкладу на завтра
         const tomorrowTZ = getDateInTZ(TIME_ZONE, 1);
         renderSchedule(tomorrowTZ, "tomorrow-schedule-list", "tomorrow-day-name");
     });
