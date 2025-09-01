@@ -28,6 +28,14 @@
       <div id="schedule-list" class="grid gap-3">
         </div>
     </section>
+
+    ---
+
+    <section class="mt-8 space-y-3">
+      <h2 id="tomorrow-day-name" class="text-xl font-semibold mb-2"></h2>
+      <div id="tomorrow-schedule-list" class="grid gap-3">
+        </div>
+    </section>
   </div>
 
   <script>
@@ -90,14 +98,17 @@
         return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
     }
 
-    function getDateInTZ(tz) {
+    function getDateInTZ(tz, offsetDays = 0) {
+        const now = new Date();
+        now.setDate(now.getDate() + offsetDays);
+
         const fmt = new Intl.DateTimeFormat("en-CA", {
             timeZone: tz,
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
         });
-        const parts = fmt.formatToParts(new Date());
+        const parts = fmt.formatToParts(now);
         const get = (t) => parts.find((p) => p.type === t)?.value;
         const y = Number(get("year"));
         const m = Number(get("month"));
@@ -183,19 +194,54 @@
         return { status: "unknown" };
     }
 
-    function renderSchedule() {
-        const todayTZ = getDateInTZ(TIME_ZONE);
-        const isoWeek = getIsoWeek(todayTZ);
+    function renderSchedule(date, containerId, dayNameContainerId) {
+        const isoWeek = getIsoWeek(date);
         const weekNum = (isoWeek % 4 === 0) ? 4 : isoWeek % 4;
-        const jsDay = todayTZ.getDay();
+        const jsDay = date.getDay();
         const dayKey = DAYS[jsDay].key;
         const dayName = DAYS[jsDay].name;
         
-        const currentStatus = getCurrentStatus(dayKey, weekNum);
+        document.getElementById(dayNameContainerId).textContent = dayName;
 
-        document.getElementById("date-info").textContent = `${new Intl.DateTimeFormat("uk-UA", { timeZone: TIME_ZONE, dateStyle: "full" }).format(new Date())} — ${weekNum}-й тиждень`;
-        document.getElementById("current-day-name").textContent = dayName;
+        const items = schedule[weekNum]?.[dayKey] || [];
+        const scheduleList = document.getElementById(containerId);
+        scheduleList.innerHTML = ''; // Очищаємо список перед оновленням
 
+        if (items.length === 0) {
+            scheduleList.innerHTML = `<div class="p-6 rounded-2xl border border-dashed text-center text-gray-600">На цей день розклад порожній.</div>`;
+        } else {
+            items.forEach((item, index) => {
+                const { start, end } = LESSON_TIMES[index] || {};
+                const activeLesson = containerId === "schedule-list" && start && end && isNowBetween(start, end);
+
+                const itemHtml = `
+                    <div class="flex items-center justify-between p-3 rounded-2xl border shadow-sm ${activeLesson ? "active" : "border-gray-200"}">
+                        <div>
+                            <div class="font-semibold">${index + 1} пара: ${item.title}</div>
+                            ${item.room ? `<div class="text-sm text-gray-600">${item.room}</div>` : ""}
+                        </div>
+                        ${start && end ? `<div class="tabular-nums font-medium">${start}–${end}</div>` : ""}
+                    </div>
+                `;
+                scheduleList.insertAdjacentHTML("beforeend", itemHtml);
+
+                if (index < items.length - 1) {
+                    const breakEnd = LESSON_TIMES[index + 1]?.start;
+                    const activeBreak = containerId === "schedule-list" && start && breakEnd && isNowBetween(end, breakEnd);
+                    const breakDuration = breakEnd ? parseTimeToMinutes(breakEnd) - parseTimeToMinutes(end) : null;
+                    const breakHtml = `
+                        <div class="p-3 rounded-2xl border border-dashed text-center text-gray-600 ${activeBreak ? "active" : ""}">
+                            Перерва${breakDuration ? ` (${breakDuration} хв)` : ''}
+                        </div>
+                    `;
+                    scheduleList.insertAdjacentHTML("beforeend", breakHtml);
+                }
+            });
+        }
+    }
+
+    function renderStatus(dayKey, weekType) {
+        const currentStatus = getCurrentStatus(dayKey, weekType);
         const statusElement = document.getElementById("status-message");
         let statusHtml = '';
         switch (currentStatus.status) {
@@ -216,48 +262,23 @@
                 break;
         }
         statusElement.innerHTML = statusHtml;
-
-        const items = schedule[weekNum]?.[dayKey] || [];
-        const scheduleList = document.getElementById("schedule-list");
-        scheduleList.innerHTML = ''; // Очищаємо список перед оновленням
-
-        if (items.length === 0) {
-            scheduleList.innerHTML = `<div class="p-6 rounded-2xl border border-dashed text-center text-gray-600">На цей день розклад порожній.</div>`;
-        } else {
-            items.forEach((item, index) => {
-                const { start, end } = LESSON_TIMES[index] || {};
-                const activeLesson = start && end && isNowBetween(start, end);
-
-                const itemHtml = `
-                    <div class="flex items-center justify-between p-3 rounded-2xl border shadow-sm ${activeLesson ? "active" : "border-gray-200"}">
-                        <div>
-                            <div class="font-semibold">${index + 1} пара: ${item.title}</div>
-                            ${item.room ? `<div class="text-sm text-gray-600">${item.room}</div>` : ""}
-                        </div>
-                        ${start && end ? `<div class="tabular-nums font-medium">${start}–${end}</div>` : ""}
-                    </div>
-                `;
-                scheduleList.insertAdjacentHTML("beforeend", itemHtml);
-
-                if (index < items.length - 1) {
-                    const breakEnd = LESSON_TIMES[index + 1]?.start;
-                    const activeBreak = start && breakEnd && isNowBetween(end, breakEnd);
-                    const breakDuration = breakEnd ? parseTimeToMinutes(breakEnd) - parseTimeToMinutes(end) : null;
-                    const breakHtml = `
-                        <div class="p-3 rounded-2xl border border-dashed text-center text-gray-600 ${activeBreak ? "active" : ""}">
-                            Перерва${breakDuration ? ` (${breakDuration} хв)` : ''}
-                        </div>
-                    `;
-                    scheduleList.insertAdjacentHTML("beforeend", breakHtml);
-                }
-            });
-        }
     }
 
-    // Оновлюємо розклад щохвилини
     document.addEventListener("DOMContentLoaded", () => {
-        renderSchedule();
-        setInterval(renderSchedule, 60000); // Оновлення кожну хвилину
+        const todayTZ = getDateInTZ(TIME_ZONE);
+        const isoWeek = getIsoWeek(todayTZ);
+        const weekNum = (isoWeek % 4 === 0) ? 4 : isoWeek % 4;
+        const jsDay = todayTZ.getDay();
+        const dayKey = DAYS[jsDay].key;
+        
+        // Відображення розкладу на сьогодні
+        document.getElementById("date-info").textContent = `${new Intl.DateTimeFormat("uk-UA", { timeZone: TIME_ZONE, dateStyle: "full" }).format(new Date())} — ${weekNum}-й тиждень`;
+        renderStatus(dayKey, weekNum);
+        renderSchedule(todayTZ, "schedule-list", "current-day-name");
+
+        // Відображення розкладу на завтра
+        const tomorrowTZ = getDateInTZ(TIME_ZONE, 1);
+        renderSchedule(tomorrowTZ, "tomorrow-schedule-list", "tomorrow-day-name");
     });
   </script>
 </body>
