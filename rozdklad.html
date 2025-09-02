@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Розклад уроків</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .active-tab {
+      background-color: #e0e7ff;
+      color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900 p-6">
+  <div class="max-w-3xl mx-auto">
+    <header class="flex items-start justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">Розклад занять</h1>
+        <div id="date-info" class="mt-1 text-sm text-gray-600"></div>
+      </div>
+    </header>
+
+    <nav class="flex space-x-2 mb-6 p-1 bg-gray-100 rounded-xl shadow-inner">
+        <a href="rozdklad.html" class="flex-1 py-2 px-4 rounded-lg text-center font-medium transition-colors active-tab">Розклад уроків</a>
+        <a href="index.html" class="flex-1 py-2 px-4 rounded-lg text-center font-medium transition-colors">Поточний розклад</a>
+        <a href="DZ.html" class="flex-1 py-2 px-4 rounded-lg text-center font-medium transition-colors">Домашнє завдання</a>
+    </nav>
+
+    <div class="flex justify-between items-center mb-6">
+      <button onclick="showPreviousWeek()" class="px-4 py-2 border rounded-full text-sm font-medium hover:bg-gray-100 transition-colors">
+        Попередній тиждень
+      </button>
+      <div id="week-display" class="font-semibold text-lg"></div>
+      <button onclick="showNextWeek()" class="px-4 py-2 border rounded-full text-sm font-medium hover:bg-gray-100 transition-colors">
+        Наступний тиждень
+      </button>
+    </div>
+    
+    <div id="full-schedule-list" class="space-y-8"></div>
+  </div>
+
+  <script>
+    // ====== НАЛАШТУВАННЯ ТА СПІЛЬНІ ФУНКЦІЇ ======
+    const TIME_ZONE = "Europe/Kyiv";
+
+    const DAYS = [
+      { key: "sunday", name: "Неділя" },
+      { key: "monday", name: "Понеділок" },
+      { key: "tuesday", name: "Вівторок" },
+      { key: "wednesday", name: "Середа" },
+      { key: "thursday", name: "Четвер" },
+      { key: "friday", name: "Пʼятниця" },
+      { key: "saturday", name: "Субота" },
+    ];
+
+    const LESSON_TIMES = [
+      { start: "08:30", end: "09:50" },
+      { start: "10:00", end: "11:20" },
+      { start: "11:40", end: "13:00" },
+      { start: "13:30", end: "14:50" },
+    ];
+
+    const schedule = {
+      1: {
+        monday: [{ title: "Зарубіжна література", room: "4014" }, { title: "Англійська мова", room: "3011, 4019" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
+        tuesday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Математика", room: "3001" }, { title: "Українська література", room: "3019" }],
+        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "3001" }, { title: "Захист України", room: "3016" }],
+        thursday: [{ title: "Фізика", room: "227" }, { title: "Хімія", room: "403" }, { title: "Інформатика", room: "3014" }, { title: "Година спілкування", room: "3001" }],
+        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "3019, 4019" }, { title: "Математика", room: "3014" }, { title: "Інформатика", room: "3003" }],
+      },
+      2: {
+        monday: [{ title: "Англійська мова", room: "3011, 4014" }, { title: "Математика", room: "3014" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
+        tuesday: [{ title: "Математика", room: "3014" }, { title: "Географія", room: "3016" }, { title: "Українська література", room: "3019" }],
+        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "2001" }, { title: "Інформатика", room: "3016" }, { title: "Захист України", room: "3017" }],
+        thursday: [{ title: "Фізика і астрономія", room: "227" }, { title: "Хімія, Історія", room: "4014, 3001" }, { title: "Година спілкування" }],
+        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "3019, 4019" }, { title: "Математика", room: "3014" }, { title: "Англійська мова", room: "3001" }],
+      },
+      3: {
+        monday: [{ title: "Зарубіжна література", room: "4014" }, { title: "Англійська мова", room: "3011, 3016" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
+        tuesday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Математика", room: "3014" }, { title: "Українська література", room: "3019" }],
+        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "3001" }, { title: "Захист України", room: "3016" }, { title: "Інформатика", room: "3003" }],
+        thursday: [{ title: "Фізика і астрономія", room: "227" }, { title: "Хімія", room: "403" }, { title: "Математика", room: "3016" }, { title: "Година спілкування", room: "3001" }],
+        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "3019, 4019" }, { title: "Інформатика", room: "3014" }],
+      },
+      4: {
+        monday: [{ title: "Англійська мова", room: "3018, 4014" }, { title: "Математика", room: "3014" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
+        tuesday: [{ title: "Математика", room: "3014" }, { title: "Географія", room: "3016" }, { title: "Українська література", room: "3019" }, { title: "Година спілкування", room: "3014" }],
+        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "2001" }, { title: "Захист України", room: "3016" }],
+        thursday: [{ title: "Фізика і астрономія", room: "227" }, { title: "Хімія", room: "4014" }, { title: "Англійська мова", room: "3001" }],
+        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "4019, 3019" }, { title: "Інформатика", room: "3014" }],
+      },
+    };
+    
+    function getIsoWeek(date) {
+        const d = new Date(date.getTime());
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+        const week1 = new Date(d.getFullYear(), 0, 4);
+        return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    }
+    
+    function getDateInTZ(tz) {
+        const now = new Date();
+        const fmt = new Intl.DateTimeFormat("en-CA", {
+            timeZone: tz,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        });
+        const parts = fmt.formatToParts(now);
+        const get = (t) => parts.find((p) => p.type === t)?.value;
+        const y = Number(get("year"));
+        const m = Number(get("month"));
+        const d = Number(get("day"));
+        return new Date(y, m - 1, d);
+    }
+    
+    let currentWeekNum;
+
+    function renderFullSchedule(weekNum) {
+        const fullScheduleList = document.getElementById('full-schedule-list');
+        fullScheduleList.innerHTML = '';
+        const weekDisplay = document.getElementById('week-display');
+
+        const weekSchedule = schedule[weekNum] || {};
+        weekDisplay.textContent = `${weekNum}-й тиждень`;
+
+        if (Object.keys(weekSchedule).length === 0) {
+            fullScheduleList.innerHTML = `<div class="p-6 rounded-2xl border border-dashed text-center text-gray-600">На цей тиждень розклад порожній.</div>`;
+            return;
+        }
+
+        DAYS.forEach((day) => {
+            const dayItems = weekSchedule[day.key] || [];
+            if (dayItems.length > 0) {
+                let dayHtml = `
+                    <div class="space-y-3">
+                        <h3 class="text-lg font-semibold">${day.name}</h3>
+                        <div class="grid gap-3">
+                `;
+                dayItems.forEach((item, index) => {
+                    const { start, end } = LESSON_TIMES[index] || {};
+                    dayHtml += `
+                        <div class="flex items-center justify-between p-3 rounded-2xl border border-gray-200 shadow-sm">
+                            <div>
+                                <div class="font-semibold">${index + 1} пара: ${item.title}</div>
+                                ${item.room ? `<div class="text-sm text-gray-600">${item.room}</div>` : ""}
+                            </div>
+                            ${start && end ? `<div class="tabular-nums font-medium">${start}–${end}</div>` : ""}
+                        </div>
+                    `;
+                });
+                dayHtml += `
+                        </div>
+                    </div>
+                `;
+                fullScheduleList.insertAdjacentHTML("beforeend", dayHtml);
+            }
+        });
+    }
+
+    function showNextWeek() {
+      currentWeekNum = (currentWeekNum % 4) + 1;
+      renderFullSchedule(currentWeekNum);
+    }
+
+    function showPreviousWeek() {
+      currentWeekNum = (currentWeekNum - 2 + 4) % 4 + 1;
+      renderFullSchedule(currentWeekNum);
+    }
+
+    // Глобальні функції для виклику з HTML
+    window.showNextWeek = showNextWeek;
+    window.showPreviousWeek = showPreviousWeek;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const todayTZ = getDateInTZ(TIME_ZONE);
+        const isoWeek = getIsoWeek(todayTZ);
+        currentWeekNum = (isoWeek % 4 === 0) ? 4 : isoWeek % 4;
+        document.getElementById("date-info").textContent = `Повний розклад`;
+        renderFullSchedule(currentWeekNum);
+    });
+  </script>
+</body>
+</html>

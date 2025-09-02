@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Домашнє завдання</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .active-tab {
+      background-color: #e0e7ff;
+      color: #3b82f6;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 48px;
+    }
+    .completed {
+        text-decoration: line-through;
+        color: #6b7280;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900 p-6">
+  <div class="max-w-3xl mx-auto">
+    <header class="flex items-start justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">Розклад занять</h1>
+        <div id="date-info" class="mt-1 text-sm text-gray-600"></div>
+      </div>
+    </header>
+
+    <nav class="flex space-x-2 mb-6 p-1 bg-gray-100 rounded-xl shadow-inner">
+        <a href="full-schedule.html" class="flex-1 py-2 px-4 rounded-lg text-center font-medium transition-colors">Розклад уроків</a>
+        <a href="index.html" class="flex-1 py-2 px-4 rounded-lg text-center font-medium transition-colors">Поточний розклад</a>
+        <a href="homework.html" class="flex-1 py-2 px-4 rounded-lg text-center font-medium transition-colors active-tab">Домашнє завдання</a>
+    </nav>
+    
+    <section class="p-6 bg-white rounded-2xl shadow-sm mb-6">
+      <h3 class="text-lg font-semibold mb-4">Додати домашнє завдання</h3>
+      <form id="homework-form" class="space-y-4">
+        <div>
+          <label for="homework-subject" class="block text-sm font-medium text-gray-700">Предмет</label>
+          <select id="homework-subject" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            <option value="">Оберіть предмет...</option>
+          </select>
+        </div>
+        <div>
+          <label for="homework-text" class="block text-sm font-medium text-gray-700">Опис завдання</label>
+          <textarea id="homework-text" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="Наприклад: Вправа 15, с. 238"></textarea>
+        </div>
+        <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Зберегти
+        </button>
+      </form>
+    </section>
+    
+    <section>
+      <h3 class="text-lg font-semibold mb-4">Список завдань</h3>
+      <div id="homework-list" class="space-y-3">
+        </div>
+    </section>
+  </div>
+
+  <script>
+    // ====== НАЛАШТУВАННЯ ТА СПІЛЬНІ ФУНКЦІЇ ======
+    const TIME_ZONE = "Europe/Kyiv";
+
+    const DAYS = [
+      { key: "sunday", name: "Неділя" },
+      { key: "monday", name: "Понеділок" },
+      { key: "tuesday", name: "Вівторок" },
+      { key: "wednesday", name: "Середа" },
+      { key: "thursday", name: "Четвер" },
+      { key: "friday", name: "Пʼятниця" },
+      { key: "saturday", name: "Субота" },
+    ];
+
+    const LESSON_TIMES = [
+      { start: "08:30", end: "09:50" },
+      { start: "10:00", end: "11:20" },
+      { start: "11:40", end: "13:00" },
+      { start: "13:30", end: "14:50" },
+    ];
+
+    const schedule = {
+      1: {
+        monday: [{ title: "Зарубіжна література", room: "4014" }, { title: "Англійська мова", room: "3011, 4019" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
+        tuesday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Математика", room: "3001" }, { title: "Українська література", room: "3019" }],
+        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "3001" }, { title: "Захист України", room: "3016" }],
+        thursday: [{ title: "Фізика", room: "227" }, { title: "Хімія", room: "403" }, { title: "Інформатика", room: "3014" }, { title: "Година спілкування", room: "3001" }],
+        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "3019, 4019" }, { title: "Математика", room: "3014" }, { title: "Інформатика", room: "3003" }],
+      },
+      2: {
+        monday: [{ title: "Англійська мова", room: "3011, 4014" }, { title: "Математика", room: "3014" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
+        tuesday: [{ title: "Математика", room: "3014" }, { title: "Географія", room: "3016" }, { title: "Українська література", room: "3019" }],
+        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "2001" }, { title: "Інформатика", room: "3016" }, { title: "Захист України", room: "3017" }],
+        thursday: [{ title: "Фізика і астрономія", room: "227" }, { title: "Хімія, Історія", room: "4014, 3001" }, { title: "Година спілкування" }],
+        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "3019, 4019" }, { title: "Математика", room: "3014" }, { title: "Англійська мова", room: "3001" }],
+      },
+      3: {
+        monday: [{ title: "Зарубіжна література", room: "4014" }, { title: "Англійська мова", room: "3011, 3016" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
+        tuesday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Математика", room: "3014" }, { title: "Українська література", room: "3019" }],
+        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "3001" }, { title: "Захист України", room: "3016" }, { title: "Інформатика", room: "3003" }],
+        thursday: [{ title: "Фізика і астрономія", room: "227" }, { title: "Хімія", room: "403" }, { title: "Математика", room: "3016" }, { title: "Година спілкування", room: "3001" }],
+        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "3019, 4019" }, { title: "Інформатика", room: "3014" }],
+      },
+      4: {
+        monday: [{ title: "Англійська мова", room: "3018, 4014" }, { title: "Математика", room: "3014" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
+        tuesday: [{ title: "Математика", room: "3014" }, { title: "Географія", room: "3016" }, { title: "Українська література", room: "3019" }, { title: "Година спілкування", room: "3014" }],
+        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "2001" }, { title: "Захист України", room: "3016" }],
+        thursday: [{ title: "Фізика і астрономія", room: "227" }, { title: "Хімія", room: "4014" }, { title: "Англійська мова", room: "3001" }],
+        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "4019, 3019" }, { title: "Інформатика", room: "3014" }],
+      },
+    };
+    
+    function getIsoWeek(date) {
+        const d = new Date(date.getTime());
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+        const week1 = new Date(d.getFullYear(), 0, 4);
+        return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    }
+    
+    function getDateInTZ(tz, offsetDays = 0) {
+        const now = new Date();
+        now.setDate(now.getDate() + offsetDays);
+        const fmt = new Intl.DateTimeFormat("en-CA", {
+            timeZone: tz,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        });
+        const parts = fmt.formatToParts(now);
+        const get = (t) => parts.find((p) => p.type === t)?.value;
+        const y = Number(get("year"));
+        const m = Number(get("month"));
+        const d = Number(get("day"));
+        return new Date(y, m - 1, d);
+    }
+    
+    // ====== ЛОГІКА ДЛЯ ЦІЄЇ СТОРІНКИ ======
+    function populateHomeworkSubjects() {
+      const select = document.getElementById('homework-subject');
+      const uniqueSubjects = new Set();
+      for (const week in schedule) {
+        for (const day in schedule[week]) {
+          schedule[week][day].forEach(item => {
+            if (item.title) {
+              uniqueSubjects.add(item.title);
+            }
+          });
+        }
+      }
+      uniqueSubjects.forEach(title => {
+        const option = document.createElement('option');
+        option.value = title;
+        option.textContent = title;
+        select.appendChild(option);
+      });
+    }
+
+    function saveHomework(e) {
+      e.preventDefault();
+      const subject = document.getElementById('homework-subject').value;
+      const text = document.getElementById('homework-text').value;
+
+      if (!subject || !text) {
+        alert('Будь ласка, оберіть предмет та введіть завдання.');
+        return;
+      }
+
+      const homeworkList = JSON.parse(localStorage.getItem('homeworkList')) || [];
+      const newHomework = {
+        id: Date.now(),
+        subject: subject,
+        text: text,
+        date: new Date().toLocaleString("uk-UA", { dateStyle: "short" }),
+        completed: false
+      };
+      homeworkList.push(newHomework);
+      localStorage.setItem('homeworkList', JSON.stringify(homeworkList));
+
+      document.getElementById('homework-text').value = '';
+      renderHomeworkList();
+    }
+
+    function renderHomeworkList() {
+      const homeworkList = JSON.parse(localStorage.getItem('homeworkList')) || [];
+      const container = document.getElementById('homework-list');
+      container.innerHTML = '';
+      
+      if (homeworkList.length === 0) {
+        container.innerHTML = `<div class="p-6 rounded-2xl border border-dashed text-center text-gray-600">Список домашніх завдань порожній.</div>`;
+        return;
+      }
+      
+      homeworkList.forEach(task => {
+        const taskHtml = `
+          <div class="p-4 bg-white rounded-xl shadow-sm border border-gray-200 flex justify-between items-start">
+            <div class="flex items-start gap-3 w-full">
+              <input type="checkbox" id="task-${task.id}" class="mt-1" onchange="toggleHomeworkComplete(${task.id})" ${task.completed ? 'checked' : ''}>
+              <div class="flex-1 ${task.completed ? 'completed' : ''}">
+                <div class="font-semibold">${task.subject}</div>
+                <div class="text-sm text-gray-700 mt-1">${task.text}</div>
+                <div class="text-xs text-gray-500 mt-1">Додано: ${task.date}</div>
+              </div>
+            </div>
+            <button class="text-gray-400 hover:text-red-600 transition-colors" onclick="deleteHomework(${task.id})">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        `;
+        container.insertAdjacentHTML("beforeend", taskHtml);
+      });
+    }
+
+    function deleteHomework(id) {
+      let homeworkList = JSON.parse(localStorage.getItem('homeworkList')) || [];
+      homeworkList = homeworkList.filter(task => task.id !== id);
+      localStorage.setItem('homeworkList', JSON.stringify(homeworkList));
+      renderHomeworkList();
+    }
+    
+    function toggleHomeworkComplete(id) {
+      let homeworkList = JSON.parse(localStorage.getItem('homeworkList')) || [];
+      const taskIndex = homeworkList.findIndex(task => task.id === id);
+      if (taskIndex > -1) {
+        homeworkList[taskIndex].completed = !homeworkList[taskIndex].completed;
+        localStorage.setItem('homeworkList', JSON.stringify(homeworkList));
+        renderHomeworkList();
+      }
+    }
+
+    // Глобальні функції для виклику з HTML
+    window.deleteHomework = deleteHomework;
+    window.toggleHomeworkComplete = toggleHomeworkComplete;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const todayTZ = getDateInTZ(TIME_ZONE);
+        const isoWeek = getIsoWeek(todayTZ);
+        const weekNum = (isoWeek % 4 === 0) ? 4 : isoWeek % 4;
+        document.getElementById("date-info").textContent = `${weekNum}-й тиждень`;
+        
+        populateHomeworkSubjects();
+        renderHomeworkList();
+        document.getElementById('homework-form').addEventListener('submit', saveHomework);
+    });
+  </script>
+</body>
+</html>
