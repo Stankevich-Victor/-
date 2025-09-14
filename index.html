@@ -65,34 +65,134 @@
     ];
 
     const schedule = {
-      1: {
-        monday: [{ title: "Зарубіжна література", room: "4014" }, { title: "Англійська мова", room: "3011, 4019" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
-        tuesday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Математика", room: "3001" }, { title: "Українська література", room: "3019" }],
-        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "3001" }, { title: "Захист України", room: "3016" }],
-        thursday: [{ title: "Фізика", room: "227" }, { title: "Хімія", room: "403" }, { title: "Інформатика", room: "3014" }, { title: "Година спілкування", room: "3001" }],
-        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "3019, 4019" }, { title: "Математика", room: "3014" }, { title: "Інформатика", room: "3003" }],
-      },
-      2: {
-        monday: [{ title: "Англійська мова", room: "3011, 4014" }, { title: "Математика", room: "3014" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
-        tuesday: [{ title: "Математика", room: "3014" }, { title: "Географія", room: "3016" }, { title: "Українська література", room: "3019" }],
-        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "2001" }, { title: "Інформатика", room: "3016" }, { title: "Захист України", room: "3017" }],
-        thursday: [{ title: "Фізика і астрономія", room: "227" }, { title: "Хімія, Історія", room: "4014, 3001" }, { title: "Година спілкування" }],
-        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "3019, 4019" }, { title: "Математика", room: "3014" }, { title: "Англійська мова", room: "3001" }],
-      },
-      3: {
-        monday: [{ title: "Зарубіжна література", room: "4014" }, { title: "Англійська мова", room: "3011, 3016" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
-        tuesday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Математика", room: "3014" }, { title: "Українська література", room: "3019" }],
-        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "3001" }, { title: "Захист України", room: "3016" }, { title: "Інформатика", room: "3003" }],
-        thursday: [{ title: "Фізика і астрономія", room: "227" }, { title: "Хімія", room: "403" }, { title: "Математика", room: "3016" }, { title: "Година спілкування", room: "3001" }],
-        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "3019, 4019" }, { title: "Інформатика", room: "3014" }],
-      },
-      4: {
-        monday: [{ title: "Англійська мова", room: "3018, 4014" }, { title: "Математика", room: "3014" }, { title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }],
-        tuesday: [{ title: "Математика", room: "3014" }, { title: "Географія", room: "3016" }, { title: "Українська література", room: "3019" }, { title: "Година спілкування", room: "3014" }],
-        wednesday: [{ title: "Профільні предмети (Фізика/Біологія)", room: "403а, 227" }, { title: "Історія", room: "2001" }, { title: "Захист України", room: "3016" }],
-        thursday: [{ title: "Фізика і астрономія", room: "227" }, { title: "Хімія", room: "4014" }, { title: "Англійська мова", room: "3001" }],
-        friday: [{ title: "Фізкультура", room: "Спортзал" }, { title: "Українська мова", room: "4019, 3019" }, { title: "Інформатика", room: "3014" }],
-      },
+        1: {
+          monday: [
+            { title: "Зарубіжна літ-ра", room: "4014" },
+            { title: "Англійська мова (Гончарук 1п / Глібко 2п)", room: "3011/,4019" },
+            { title: "Проф. біологія / проф.фізика і астрономія (Циганенко-Дзюбенко/,Кучер)", room: "403а/,227" },
+            null
+          ],
+          tuesday: [
+            { title: "Українська літ-ра (Лознюк)", room: "4019" },
+            { title: "Математика (Нелипович)", room: "4001" },
+            { title: "Фізкультура (Пузіна)", room: "Спорт,зала" },
+            null
+          ],
+          wednesday: [
+            { title: "Проф. біологія / проф.фізика і астрономія (Циганенко-Дзюбенко/,Кучер)", room: "403а/,227" },
+            { title: "Історія (Геча)", room: "3001" },
+            { title: "Захист України (Чугунов)", room: "3016" },
+            null
+          ],
+          thursday: [
+            { title: "Фізика (Кучер)", room: "227" },
+            { title: "Хімія (Зинюк)", room: "403" },
+            { title: "Інформаційні технології (Шатківський)", room: "3014" },
+            { title: "Година спілкування (Гончарук)", room: "3001" }
+          ],
+          friday: [
+            { title: "Математика (Нелипович)", room: "4019" },
+            { title: "Українська мова (Боровська-Карандюк 1п / Лознюк 2п)", room: "4019/,3019" },
+            { title: "Фізкультура (Пузіна)", room: "Спорт,зала" },
+            { title: "Інформаційні технології (Шатківський)", room: "3003" }
+          ]
+        },
+        2: {
+          monday: [
+            { title: "Англійська мова (Гончарук 1п / Глібко 2п)", room: "3011/,2019" },
+            { title: "Математика (Нелипович)", room: "3014" },
+            { title: "Проф. біологія / проф.фізика і астрономія (Циганенко-Дзюбенко/,Кучер)", room: "403а/,227" },
+            null
+          ],
+          tuesday: [
+            { title: "Математика (Нелипович)", room: "3014" },
+            { title: "Географія (Голяченко)", room: "3014" },
+            { title: "Українська літ-ра (Лознюк)", room: "3019" },
+            null
+          ],
+          wednesday: [
+            { title: "Проф. біологія / проф.фізика і астрономія (Циганенко-Дзюбенко/,Кучер)", room: "403а/,227" },
+            { title: "Історія (Геча)", room: "2001" },
+            { title: "Інформаційні технології (Шатківський)", room: "3016" },
+            { title: "СК «Англійська мова» (Гончарук)", room: "4019" }
+          ],
+          thursday: [
+            { title: "Фізика і астрономія (Кучер)", room: "227" },
+            { title: "Хімія (Зинюк)", room: "4014" },
+            { title: "Історія (Геча)", room: "3001" },
+            { title: "Фізкультура (Пузіна)", room: "Спорт,зала" }
+          ],
+          friday: [
+            { title: "Українська мова (Боровська-Карандюк 1п / Лознюк 2п)", room: "4014/,2001" },
+            { title: "Математика (Нелипович)", room: "3019" },
+            { title: "Захист України (Чугунов)", room: "3016/ тир" },
+            null
+          ]
+        },
+        3: {
+          monday: [
+            { title: "Зарубіжна літ-ра (Ренькас)", room: "4014" },
+            { title: "Англійська мова (Гончарук 1п / Глібко 2п)", room: "3011/,3016" },
+            { title: "Проф. біологія / проф.фізика і астрономія (Циганенко-Дзюбенко/,Кучер)", room: "403а/,227" },
+            null
+          ],
+          tuesday: [
+            { title: "Фізика і астрономія (Кучер)", room: "227" },
+            { title: "Математика (Нелипович)", room: "3014" },
+            { title: "Фізкультура (Пузіна)", room: "Спорт,зала" },
+            null
+          ],
+          wednesday: [
+            { title: "Проф. біологія / проф.фізика і астрономія (Циганенко-Дзюбенко/,Кучер)", room: "403а/,227" },
+            { title: "Історія (Геча)", room: "3001" },
+            { title: "Захист України (Чугунов)", room: "3016" },
+            null
+          ],
+          thursday: [
+            { title: "Математика (Нелипович)", room: "227" },
+            { title: "Хімія (Зинюк)", room: "403" },
+            { title: "Інформаційні технології (Шатківський)", room: "3016" },
+            { title: "Година спілкування (Гончарук)", room: "3001" }
+          ],
+          friday: [
+            { title: "Українська літ-ра (Лознюк)", room: "4019" },
+            { title: "Українська мова (Боровська-Карандюк 1п / Лознюк 2п)", room: "3019/,4019" },
+            { title: "Фізкультура (Пузіна)", room: "Спорт,зала" },
+            { title: "Інформаційні технології (Шатківський)", room: "303" }
+          ]
+        },
+        4: {
+          monday: [
+            { title: "Англійська мова (Гончарук 1п / Глібко 2п)", room: "3011/,2019" },
+            { title: "Математика (Нелипович)", room: "3014" },
+            { title: "Проф. біологія / проф.фізика і астрономія (Циганенко-Дзюбенко/,Кучер)", room: "403а/,227" },
+            null
+          ],
+          tuesday: [
+            { title: "Математика (Нелипович)", room: "3014" },
+            { title: "Географія (Голяченко)", room: "4019" },
+            { title: "Українська літ-ра (Лознюк)", room: "3019" },
+            { title: "Година спілкування (Гончарук)", room: "3014" }
+          ],
+          wednesday: [
+            { title: "Проф. біологія / проф.фізика і астрономія (Циганенко-Дзюбенко/,Кучер)", room: "403а/,227" },
+            { title: "Історія (Геча)", room: "2001" },
+            { title: "Захист України (Чугунов)", room: "3016" },
+            null
+          ],
+          thursday: [
+            { title: "Фізика і астрономія (Кучер)", room: "227" },
+            { title: "Хімія (Зинюк)", room: "4014" },
+            { title: "Фізкультура (Пузіна)", room: "Спорт,зала" },
+            null
+          ],
+          friday: [
+            { title: "Українська мова (Боровська-Карандюк 1п / Лознюк 2п)", room: "4014/,3019" },
+            { title: "СК «Англійська мова» (Гончарук)", room: "3019" },
+            { title: "Інформаційні технології (Шатківський)", room: "3014" },
+            null
+          ]
+        }
     };
 
     function getIsoWeek(date) {
@@ -215,36 +315,38 @@
             scheduleList.innerHTML = `<div class="p-6 rounded-2xl border border-dashed text-center text-gray-600">На цей день розклад порожній.</div>`;
         } else {
             items.forEach((item, index) => {
-                const { start, end } = LESSON_TIMES[index] || {};
-                const activeLesson = containerId === "schedule-list" && start && end && isNowBetween(start, end);
-                
-                const noteKey = `note-${item.title.replace(/\s/g, '-')}-${item.room ? item.room.replace(/\s/g, '-') : ''}`;
-                const savedNote = localStorage.getItem(noteKey) || '';
+                if (item) {
+                    const { start, end } = LESSON_TIMES[index] || {};
+                    const activeLesson = containerId === "schedule-list" && start && end && isNowBetween(start, end);
+                    
+                    const noteKey = `note-${item.title.replace(/\s/g, '-')}-${item.room ? item.room.replace(/\s/g, '-') : ''}`;
+                    const savedNote = localStorage.getItem(noteKey) || '';
 
-                const itemHtml = `
-                    <div class="flex items-center justify-between p-3 rounded-2xl border shadow-sm ${activeLesson ? "active" : "border-gray-200"}">
-                        <div>
-                            <div class="font-semibold">${index + 1} пара: ${item.title}</div>
-                            ${item.room ? `<div class="text-sm text-gray-600">${item.room}</div>` : ""}
+                    const itemHtml = `
+                        <div class="flex items-center justify-between p-3 rounded-2xl border shadow-sm ${activeLesson ? "active" : "border-gray-200"}">
+                            <div>
+                                <div class="font-semibold">${index + 1} пара: ${item.title}</div>
+                                ${item.room ? `<div class="text-sm text-gray-600">${item.room}</div>` : ""}
+                            </div>
+                            ${start && end ? `<div class="tabular-nums font-medium">${start}–${end}</div>` : ""}
                         </div>
-                        ${start && end ? `<div class="tabular-nums font-medium">${start}–${end}</div>` : ""}
-                    </div>
-                    ${(containerId === 'tomorrow-schedule-list' || savedNote) ? `
-                    <div class="p-3">
-                        <textarea class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all"
-                            placeholder="Напишіть нотатку для цього предмета..."
-                            id="${noteKey}"
-                            ${containerId === 'tomorrow-schedule-list' ? `oninput="saveNote('${noteKey}')"` : 'readonly'}
-                        >${savedNote}</textarea>
-                    </div>
-                    ` : ''}
-                `;
-                scheduleList.insertAdjacentHTML("beforeend", itemHtml);
+                        ${(containerId === 'tomorrow-schedule-list' || savedNote) ? `
+                        <div class="p-3">
+                            <textarea class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all"
+                                placeholder="Напишіть нотатку для цього предмета..."
+                                id="${noteKey}"
+                                ${containerId === 'tomorrow-schedule-list' ? `oninput="saveNote('${noteKey}')"` : 'readonly'}
+                            >${savedNote}</textarea>
+                        </div>
+                        ` : ''}
+                    `;
+                    scheduleList.insertAdjacentHTML("beforeend", itemHtml);
+                }
 
-                if (index < items.length - 1) {
+                if (item && index < items.length - 1) {
                     const breakEnd = LESSON_TIMES[index + 1]?.start;
-                    const activeBreak = containerId === "schedule-list" && start && breakEnd && isNowBetween(end, breakEnd);
-                    const breakDuration = breakEnd ? parseTimeToMinutes(breakEnd) - parseTimeToMinutes(end) : null;
+                    const activeBreak = containerId === "schedule-list" && item.title && breakEnd && isNowBetween(LESSON_TIMES[index].end, breakEnd);
+                    const breakDuration = breakEnd ? parseTimeToMinutes(breakEnd) - parseTimeToMinutes(LESSON_TIMES[index].end) : null;
                     const breakHtml = `
                         <div class="p-3 rounded-2xl border border-dashed text-center text-gray-600 ${activeBreak ? "active" : ""}">
                             Перерва${breakDuration ? ` (${breakDuration} хв)` : ''}
